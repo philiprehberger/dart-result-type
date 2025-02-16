@@ -170,4 +170,114 @@ void main() {
       expect(collected.unwrap(), equals(<int>[]));
     });
   });
+
+  group('trySync', () {
+    test('returns Ok when function succeeds', () {
+      final result = Result.trySync(() => 42, (e) => e.toString());
+      expect(result.isOk, isTrue);
+      expect(result.unwrap(), equals(42));
+    });
+
+    test('returns Err when function throws', () {
+      final result = Result.trySync<int, String>(
+        () => throw Exception('fail'),
+        (e) => e.toString(),
+      );
+      expect(result.isErr, isTrue);
+      expect(result.errOrNull, contains('fail'));
+    });
+
+    test('error mapper receives thrown object', () {
+      final result = Result.trySync<int, String>(
+        () => throw FormatException('bad'),
+        (e) => 'caught: ${e.runtimeType}',
+      );
+      expect(result.errOrNull, equals('caught: FormatException'));
+    });
+  });
+
+  group('unwrapOrElse', () {
+    test('Ok returns value without calling function', () {
+      var called = false;
+      final result = Ok<int, String>(42).unwrapOrElse((_) {
+        called = true;
+        return 0;
+      });
+      expect(result, equals(42));
+      expect(called, isFalse);
+    });
+
+    test('Err calls function with error and returns result', () {
+      final result = Err<int, String>('error').unwrapOrElse(
+        (e) => e.length,
+      );
+      expect(result, equals(5));
+    });
+  });
+
+  group('expect', () {
+    test('Ok returns value', () {
+      expect(Ok<int, String>(42).expect('should not fail'), equals(42));
+    });
+
+    test('Err throws StateError with provided message', () {
+      expect(
+        () => Err<int, String>('error').expect('custom message'),
+        throwsA(
+          isA<StateError>().having(
+              (e) => e.message, 'message', 'custom message'),
+        ),
+      );
+    });
+  });
+
+  group('filter', () {
+    test('Ok passes predicate returns Ok', () {
+      final result =
+          Ok<int, String>(42).filter((v) => v > 0, (v) => 'negative');
+      expect(result.isOk, isTrue);
+      expect(result.unwrap(), equals(42));
+    });
+
+    test('Ok fails predicate returns Err', () {
+      final result =
+          Ok<int, String>(-1).filter((v) => v > 0, (v) => 'got $v');
+      expect(result.isErr, isTrue);
+      expect(result.errOrNull, equals('got -1'));
+    });
+
+    test('Err is unchanged', () {
+      final result =
+          Err<int, String>('error').filter((v) => v > 0, (v) => 'x');
+      expect(result.isErr, isTrue);
+      expect(result.errOrNull, equals('error'));
+    });
+  });
+
+  group('zip', () {
+    test('both Ok returns Ok with record', () {
+      final result = Result.zip(Ok<int, String>(1), Ok<int, String>(2));
+      expect(result.isOk, isTrue);
+      expect(result.unwrap(), equals((1, 2)));
+    });
+
+    test('first Err returns first Err', () {
+      final result = Result.zip(Err<int, String>('a'), Ok<int, String>(2));
+      expect(result.isErr, isTrue);
+      expect(result.errOrNull, equals('a'));
+    });
+
+    test('second Err returns second Err', () {
+      final result = Result.zip(Ok<int, String>(1), Err<int, String>('b'));
+      expect(result.isErr, isTrue);
+      expect(result.errOrNull, equals('b'));
+    });
+
+    test('both Err returns first Err', () {
+      final result =
+          Result.zip(Err<int, String>('a'), Err<int, String>('b'));
+      expect(result.isErr, isTrue);
+      expect(result.errOrNull, equals('a'));
+    });
+  });
 }

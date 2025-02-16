@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.2.0] - 2026-04-04
+
+### Added
+
+- `Result.trySync()` for wrapping synchronous operations that may throw
+- `unwrapOrElse()` for lazy default evaluation on error
+- `expect()` for unwrapping with a custom error message
+- `filter()` for conditional Ok-to-Err conversion based on a predicate
+- `Result.zip()` for combining two Results into a single Result with a record
+
 ## [0.1.0] - 2026-04-03
 
 ### Added
