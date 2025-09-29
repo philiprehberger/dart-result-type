@@ -97,6 +97,16 @@ sealed class Result<T, E> {
     return Result.ok(values);
   }
 
+  /// Flatten a nested Result into a single Result.
+  ///
+  /// Converts `Result<Result<T, E>, E>` into `Result<T, E>`.
+  static Result<T, E> flatten<T, E>(Result<Result<T, E>, E> nested) {
+    return nested.when(
+      ok: (inner) => inner,
+      err: (e) => Err(e),
+    );
+  }
+
   /// Combine two Results into a single Result containing a record.
   ///
   /// Returns the first [Err] encountered, if any.

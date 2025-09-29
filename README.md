@@ -14,7 +14,7 @@ Rust-style Result type for type-safe error handling with pattern matching.
 
 ```yaml
 dependencies:
-  philiprehberger_result_type: ^0.2.0
+  philiprehberger_result_type: ^0.3.0
 ```
 
 ```bash
@@ -133,6 +133,18 @@ final filtered = Result<int, String>.ok(-1)
 print(filtered); // Err(expected positive, got -1)
 ```
 
+### Flattening Nested Results
+
+```dart
+final nested = Result<Result<int, String>, String>.ok(Result.ok(42));
+final flat = Result.flatten(nested);
+print(flat); // Ok(42)
+
+final nestedErr = Result<Result<int, String>, String>.err('outer error');
+final flatErr = Result.flatten(nestedErr);
+print(flatErr); // Err(outer error)
+```
+
 ### Zipping Results
 
 ```dart
@@ -166,6 +178,7 @@ print(zipped); // Ok((1, 2))
 | `Result.trySync(fn, onError)` | Wrap sync operation into Result |
 | `Result.tryAsync(fn, onError)` | Wrap async operation into Result |
 | `Result.collect(results)` | Combine list of Results |
+| `Result.flatten(nested)` | Unwrap nested `Result<Result<T,E>,E>` into `Result<T,E>` |
 | `Result.zip(a, b)` | Combine two Results into a record |
 
 ### Ok\<T, E\>
