@@ -14,7 +14,7 @@ Rust-style Result type for type-safe error handling with pattern matching.
 
 ```yaml
 dependencies:
-  philiprehberger_result_type: ^0.1.0
+  philiprehberger_result_type: ^0.2.0
 ```
 
 ```bash
@@ -93,6 +93,55 @@ print(err.unwrapOr(0));  // 0
 // err.unwrap();          // throws StateError
 ```
 
+### Unwrap with Lazy Default
+
+```dart
+final result = Err<int, String>('missing');
+final value = result.unwrapOrElse((e) => e.length);
+print(value); // 7
+```
+
+### Expect
+
+```dart
+final result = Result<int, String>.ok(42);
+print(result.expect('value must exist')); // 42
+
+// On Err, throws StateError with custom message:
+// Result<int, String>.err('fail').expect('value must exist');
+```
+
+### Sync Error Handling
+
+```dart
+final result = Result.trySync(
+  () => int.parse('42'),
+  (error) => 'parse failed: $error',
+);
+print(result); // Ok(42)
+```
+
+### Filtering
+
+```dart
+final result = Result<int, String>.ok(5)
+    .filter((v) => v > 0, (v) => 'expected positive, got $v');
+print(result); // Ok(5)
+
+final filtered = Result<int, String>.ok(-1)
+    .filter((v) => v > 0, (v) => 'expected positive, got $v');
+print(filtered); // Err(expected positive, got -1)
+```
+
+### Zipping Results
+
+```dart
+final a = Result<int, String>.ok(1);
+final b = Result<int, String>.ok(2);
+final zipped = Result.zip(a, b);
+print(zipped); // Ok((1, 2))
+```
+
 ## API
 
 ### Result\<T, E\>
@@ -107,12 +156,17 @@ print(err.unwrapOr(0));  // 0
 | `errOrNull` | Error value or null |
 | `unwrap()` | Get value or throw StateError |
 | `unwrapOr(T default)` | Get value or return default |
+| `unwrapOrElse(T Function(E) fn)` | Get value or compute default from error |
+| `expect(String message)` | Get value or throw StateError with message |
 | `map(U Function(T) f)` | Transform success value |
 | `mapErr(F Function(E) f)` | Transform error value |
 | `flatMap(Result<U,E> Function(T) f)` | Chain Result-producing operation |
+| `filter(predicate, orElse)` | Keep Ok if predicate passes, else convert to Err |
 | `when({ok, err})` | Exhaustive pattern match |
-| `Result.tryAsync(fn, onError)` | Wrap async into Result |
+| `Result.trySync(fn, onError)` | Wrap sync operation into Result |
+| `Result.tryAsync(fn, onError)` | Wrap async operation into Result |
 | `Result.collect(results)` | Combine list of Results |
+| `Result.zip(a, b)` | Combine two Results into a record |
 
 ### Ok\<T, E\>
 
@@ -129,6 +183,10 @@ dart pub get
 dart analyze --fatal-infos
 dart test
 ```
+
+## Support
+
+File issues on [GitHub](https://github.com/philiprehberger/dart-result-type/issues).
 
 ## License
 
