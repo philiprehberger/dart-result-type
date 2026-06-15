@@ -57,6 +57,14 @@ sealed class Result<T, E> {
   R when<R>(
       {required R Function(T value) ok, required R Function(E error) err});
 
+  /// Reduce the result to a single value using positional callbacks.
+  ///
+  /// Equivalent to [when] with positional arguments instead of named.
+  R fold<R>(R Function(T value) onOk, R Function(E error) onErr);
+
+  /// Swap [Ok] and [Err]: convert `Ok<T,E>` to `Err<E,T>` and vice versa.
+  Result<E, T> swap();
+
   /// Wrap a synchronous operation that may throw into a Result.
   static Result<T, E> trySync<T, E>(
     T Function() fn,
@@ -169,6 +177,12 @@ final class Ok<T, E> extends Result<T, E> {
       ok(value);
 
   @override
+  R fold<R>(R Function(T value) onOk, R Function(E error) onErr) => onOk(value);
+
+  @override
+  Result<E, T> swap() => Err(value);
+
+  @override
   bool operator ==(Object other) => other is Ok<T, E> && other.value == value;
 
   @override
@@ -228,6 +242,13 @@ final class Err<T, E> extends Result<T, E> {
           {required R Function(T value) ok,
           required R Function(E error) err}) =>
       err(error);
+
+  @override
+  R fold<R>(R Function(T value) onOk, R Function(E error) onErr) =>
+      onErr(error);
+
+  @override
+  Result<E, T> swap() => Ok(error);
 
   @override
   bool operator ==(Object other) =>

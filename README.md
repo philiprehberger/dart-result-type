@@ -1,21 +1,27 @@
 # philiprehberger_result_type
 
+[![Tests](https://github.com/philiprehberger/dart-result-type/actions/workflows/ci.yml/badge.svg)](https://github.com/philiprehberger/dart-result-type/actions/workflows/ci.yml)
 [![pub package](https://img.shields.io/pub/v/philiprehberger_result_type.svg)](https://pub.dev/packages/philiprehberger_result_type)
-[![CI](https://github.com/philiprehberger/dart-result-type/actions/workflows/ci.yml/badge.svg)](https://github.com/philiprehberger/dart-result-type/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Last updated](https://img.shields.io/github/last-commit/philiprehberger/dart-result-type)](https://github.com/philiprehberger/dart-result-type/commits/main)
 
-Rust-style Result type for type-safe error handling with pattern matching.
+![philiprehberger_result_type](https://raw.githubusercontent.com/philiprehberger/dart-result-type/main/package-card.webp)
+
+Rust-style Result type for type-safe error handling with pattern matching
 
 ## Requirements
 
-- Dart SDK ^3.6.0
+- Dart >= 3.6
 
 ## Installation
 
+Add to your `pubspec.yaml`:
+
 ```yaml
 dependencies:
-  philiprehberger_result_type: ^0.3.0
+  philiprehberger_result_type: ^0.4.0
 ```
+
+Then run:
 
 ```bash
 dart pub get
@@ -42,6 +48,29 @@ final message = result.when(
   err: (error) => 'Error: $error',
 );
 print(message); // Result: 5
+```
+
+### Fold
+
+A positional alternative to `when()` for terser destructuring.
+
+```dart
+final message = divide(10, 2).fold(
+  (value) => 'Result: $value',
+  (error) => 'Error: $error',
+);
+```
+
+### Swap
+
+Swap the `Ok` and `Err` variants — useful for inverting validation results.
+
+```dart
+final swapped = Result<int, String>.ok(42).swap();
+print(swapped); // Err(42)
+
+final inverted = Result<int, String>.err('missing').swap();
+print(inverted); // Ok(missing)
 ```
 
 ### Transformations
@@ -156,10 +185,8 @@ print(zipped); // Ok((1, 2))
 
 ## API
 
-### Result\<T, E\>
-
-| Member | Description |
-|---|---|
+| Method | Description |
+|--------|-------------|
 | `Result.ok(T value)` | Create a success result |
 | `Result.err(E error)` | Create a failure result |
 | `isOk` | Whether this is an Ok result |
@@ -175,19 +202,13 @@ print(zipped); // Ok((1, 2))
 | `flatMap(Result<U,E> Function(T) f)` | Chain Result-producing operation |
 | `filter(predicate, orElse)` | Keep Ok if predicate passes, else convert to Err |
 | `when({ok, err})` | Exhaustive pattern match |
+| `fold(onOk, onErr)` | Reduce to a single value using positional callbacks |
+| `swap()` | Convert Ok↔Err |
 | `Result.trySync(fn, onError)` | Wrap sync operation into Result |
 | `Result.tryAsync(fn, onError)` | Wrap async operation into Result |
 | `Result.collect(results)` | Combine list of Results |
 | `Result.flatten(nested)` | Unwrap nested `Result<Result<T,E>,E>` into `Result<T,E>` |
 | `Result.zip(a, b)` | Combine two Results into a record |
-
-### Ok\<T, E\>
-
-Success variant. Holds a `value` of type `T`. All transformation methods operate on the value.
-
-### Err\<T, E\>
-
-Failure variant. Holds an `error` of type `E`. Transformation methods like `map` and `flatMap` pass through the error unchanged.
 
 ## Development
 
@@ -199,8 +220,22 @@ dart test
 
 ## Support
 
-File issues on [GitHub](https://github.com/philiprehberger/dart-result-type/issues).
+If you find this project useful:
+
+⭐ [Star the repo](https://github.com/philiprehberger/dart-result-type)
+
+🐛 [Report issues](https://github.com/philiprehberger/dart-result-type/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
+
+💡 [Suggest features](https://github.com/philiprehberger/dart-result-type/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
+
+❤️ [Sponsor development](https://github.com/sponsors/philiprehberger)
+
+🌐 [All Open Source Projects](https://philiprehberger.com/open-source-packages)
+
+💻 [GitHub Profile](https://github.com/philiprehberger)
+
+🔗 [LinkedIn Profile](https://www.linkedin.com/in/philiprehberger)
 
 ## License
 
-MIT - see [LICENSE](LICENSE) for details.
+[MIT](LICENSE)

@@ -280,4 +280,38 @@ void main() {
       expect(result.errOrNull, equals('a'));
     });
   });
+
+  group('fold', () {
+    test('Ok calls onOk', () {
+      final result = Result<int, String>.ok(42);
+      final msg = result.fold((v) => 'got $v', (e) => 'error $e');
+      expect(msg, equals('got 42'));
+    });
+
+    test('Err calls onErr', () {
+      final result = Result<int, String>.err('boom');
+      final msg = result.fold((v) => 'got $v', (e) => 'error $e');
+      expect(msg, equals('error boom'));
+    });
+  });
+
+  group('swap', () {
+    test('Ok becomes Err', () {
+      final swapped = Result<int, String>.ok(42).swap();
+      expect(swapped.isErr, isTrue);
+      expect(swapped.errOrNull, equals(42));
+    });
+
+    test('Err becomes Ok', () {
+      final swapped = Result<int, String>.err('boom').swap();
+      expect(swapped.isOk, isTrue);
+      expect(swapped.okOrNull, equals('boom'));
+    });
+
+    test('double swap returns equivalent result', () {
+      final original = Result<int, String>.ok(42);
+      final doubled = original.swap().swap();
+      expect(doubled, equals(original));
+    });
+  });
 }
